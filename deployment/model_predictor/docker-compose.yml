@@ -1,0 +1,19 @@
+version: "3.7"
+services:
+  model_predictor:
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
+    restart: on-failure
+    volumes:
+      - ../../data/raw_data:/sample_solution/data/raw_data
+      - ../../data/train_data:/sample_solution/data/train_data
+      - ../../data/model_config:/sample_solution/data/model_config
+      - ../../data/captured_data:/sample_solution/data/captured_data
+    ports:
+      - ${PORT}:8000
+    environment:
+      MODEL_CONFIG_PATH_PROB_1: ${MODEL_CONFIG_PATH_PROB_1}
+      MODEL_CONFIG_PATH_PROB_2: ${MODEL_CONFIG_PATH_PROB_2}
+      MLFLOW_TRACKING_URI: http://host.docker.internal:5000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: /bin/sh -c "python src/model_predictor.py --config_path_prob_1 ${MODEL_CONFIG_PATH_PROB_1} --config_path_prob_2 ${MODEL_CONFIG_PATH_PROB_2} --port 8000"
