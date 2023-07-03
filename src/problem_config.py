@@ -64,6 +64,9 @@ def create_prob_config(phase_id: str, prob_id: str) -> ProblemConfig:
     prob_config.category_index_path = (
         prob_config.train_data_path / "category_index.pickle"
     )
+    prob_config.label_binarizer_path = (
+        prob_config.train_data_path / "label_binarizer.pickle"
+    )
     prob_config.train_x_path = prob_config.train_data_path / "train_x.parquet"
     prob_config.train_y_path = prob_config.train_data_path / "train_y.parquet"
     prob_config.test_x_path = prob_config.train_data_path / "test_x.parquet"

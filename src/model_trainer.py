@@ -1,12 +1,12 @@
 import argparse
 import logging
-
+import pickle 
 import mlflow
 import numpy as np
 import xgboost as xgb
 from mlflow.models.signature import infer_signature
 from sklearn.metrics import roc_auc_score
-
+from sklearn.preprocessing import LabelBinarizer
 from problem_config import (
     ProblemConfig,
     ProblemConst,
@@ -32,6 +32,13 @@ class ModelTrainer:
         train_x, train_y = RawDataProcessor.load_train_data(prob_config)
         train_x = train_x.to_numpy()
         train_y = train_y.to_numpy()
+
+        if prob_config.prob_id=="prob-2":
+            label_binarizer = LabelBinarizer().fit(train_y)
+            train_y = label_binarizer.transform(train_y)
+            with open(prob_config.label_binarizer_path, "wb") as f:
+                pickle.dump(label_binarizer, f)
+
         logging.info(f"loaded {len(train_x)} samples")
 
         if add_captured_data:
@@ -52,10 +59,18 @@ class ModelTrainer:
 
         # evaluate
         test_x, test_y = RawDataProcessor.load_test_data(prob_config)
-        predictions = model.predict(test_x)
-        auc_score = roc_auc_score(test_y, predictions)
-        metrics = {"test_auc": auc_score}
-        logging.info(f"metrics: {metrics}")
+        
+        if prob_config.prob_id=="prob-2":
+            test_y = label_binarizer.transform(test_y)
+            predictions = model.predict_proba(test_x)
+            auc_score = roc_auc_score(test_y, predictions, multi_class='ovr')
+            metrics = {"test_auc": auc_score}
+            logging.info(f"metrics: {metrics}")
+        else:
+            predictions = model.predict(test_x)
+            auc_score = roc_auc_score(test_y, predictions, multi_class='ovr')
+            metrics = {"test_auc": auc_score}
+            logging.info(f"metrics: {metrics}")
 
         # mlflow log
         mlflow.log_params(model.get_params())

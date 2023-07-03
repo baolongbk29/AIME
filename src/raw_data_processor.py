@@ -1,10 +1,8 @@
 import argparse
 import logging
 import pickle
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
-
 from problem_config import ProblemConfig, ProblemConst, get_prob_config
 
 
@@ -66,8 +64,18 @@ class RawDataProcessor:
         test_y = dev[[target_col]]
 
         train_x.to_parquet(prob_config.train_x_path, index=False)
-        train_y.to_parquet(prob_config.train_y_path, index=False)
         test_x.to_parquet(prob_config.test_x_path, index=False)
+
+        # if prob == "prob-2":
+        #     label_binarizer = LabelBinarizer().fit(train_y)
+        #     train_y = label_binarizer.transform(train_y)
+        #     test_y = label_binarizer.transform(test_y)
+        #     with open(prob_config.label_binarizer_path, "wb") as f:
+        #         pickle.dump(label_binarizer, f)
+        #     train_y = train_y.tolist()
+        #     test_y  = test_y.tolist()
+            
+        train_y.to_parquet(prob_config.train_y_path, index=False)
         test_y.to_parquet(prob_config.test_y_path, index=False)
         logging.info("finish process_raw_data")
 

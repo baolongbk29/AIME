@@ -3,7 +3,7 @@ import logging
 import os
 import random
 import time
-
+import pickle
 import mlflow
 import pandas as pd
 import uvicorn
@@ -69,6 +69,10 @@ class ModelPredictor:
         prediction = self.model.predict(feature_df)
         is_drifted = self.detect_drift(feature_df)
 
+        if self.config["prob_id"] == "prob-2":
+            label_binarizer = pickle.load(open(self.prob_config.label_binarizer_path , 'rb'))
+            predictions = label_binarizer.inverse_transform(predictions)
+
         run_time = round((time.time() - start_time) * 1000, 0)
         logging.info(f"prediction takes {run_time} ms")
         return {
@@ -98,17 +102,18 @@ class PredictorApi:
         async def root():
             return {"message": "hello"}
 
-        @self.app.post("/phase-1/prob-1/predict")
+        @self.app.post("/phase-2/prob-1/predict")
         async def predict(data: Data, request: Request):
             self._log_request(request)
             response = self.predictor_prob_1.predict(data)
             self._log_response(response)
             return response
         
-        @self.app.post("/phase-1/prob-2/predict")
+        @self.app.post("/phase-2/prob-2/predict")
         async def predict(data: Data, request: Request):
             self._log_request(request)
             response = self.predictor_prob_2.predict(data)
+            print(response)
             self._log_response(response)
             return response
 
