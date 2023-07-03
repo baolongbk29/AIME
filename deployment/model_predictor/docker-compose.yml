@@ -11,8 +11,9 @@ services:
     ports:
       - ${PORT}:8000
     environment:
-      MODEL_CONFIG_PATH: ${MODEL_CONFIG_PATH}
+      MODEL_CONFIG_PATH_PROB_1: ${MODEL_CONFIG_PATH_PROB_1}
+      MODEL_CONFIG_PATH_PROB_2: ${MODEL_CONFIG_PATH_PROB_2}
       MLFLOW_TRACKING_URI: http://host.docker.internal:5000
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    entrypoint: /bin/sh -c "python src/model_predictor.py --config-path ${MODEL_CONFIG_PATH} --port 8000"
+    entrypoint: /bin/sh -c "python src/model_predictor.py --config_path_prob_1 ${MODEL_CONFIG_PATH_PROB_1} --config_path_prob_2 ${MODEL_CONFIG_PATH_PROB_2} --port 8000"
