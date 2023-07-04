@@ -49,7 +49,7 @@ class ModelPredictor:
     def detect_drift(self, feature_df) -> int:
         # watch drift between coming requests and training data
         time.sleep(0.02)
-        return random.choice([0, 1])
+        return 0
 
     def predict(self, data: Data):
         start_time = time.time()
@@ -71,7 +71,7 @@ class ModelPredictor:
 
         if self.config["prob_id"] == "prob-2":
             label_binarizer = pickle.load(open(self.prob_config.label_binarizer_path , 'rb'))
-            predictions = label_binarizer.inverse_transform(predictions)
+            prediction = label_binarizer.inverse_transform(prediction)
 
         run_time = round((time.time() - start_time) * 1000, 0)
         logging.info(f"prediction takes {run_time} ms")
@@ -113,7 +113,6 @@ class PredictorApi:
         async def predict(data: Data, request: Request):
             self._log_request(request)
             response = self.predictor_prob_2.predict(data)
-            print(response)
             self._log_response(response)
             return response
 
